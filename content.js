@@ -16,16 +16,16 @@ chrome.storage.sync.get(['level', 'blacklist'], function (result) {
     if (BLOCK == null)
         BLOCK = 0
     BLOCK = Number(BLOCK)
-    let blacklist = Set(result.blacklist)
+    let blacklist = new Set(String(result.blacklist).split(","))
     for (let i = 0; i < comments.length; ++i) {
         let htmlElement = comments[i]
         let have = false
         for (let lev = BLOCK + 1; !have && lev < ranks.length; ++lev) {
             let users = htmlElement.querySelectorAll('div.avatar ' + ranks[lev])
-            users.forEach(function (user) {
-                if (!blacklist.has(user.textContent))
+            for (let i = 0; !have && i < users.length; ++i) {
+                if (!blacklist.has(users[i].textContent))
                     have = true
-            })
+            }
         }
         if (!have)
             htmlElement.innerHTML = ''

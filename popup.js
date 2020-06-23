@@ -19,21 +19,62 @@ function drawLevel() {
 function reloadCurrentTab() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.reload(tabs[0].id);
-        setTimeout(() => {  window.close(); }, 250);
     });
 }
 
-function addToBlackList(handle) {
-    chrome.storage.sync.get(['blacklist'], function(result) {
-        let blacklist = Array(result.blacklist)
-        blacklist.push(handle)
-        chrome.storage.sync.set({'blacklist': blacklist}, function () {
-            alert("added " + handle + " to blacklist")
+function addToList(listName, handle) {
+    chrome.storage.sync.get([listName], function(result) {
+        let list = String(Object.values(result)[0]).split(",")
+        list.push(handle)
+        chrome.storage.sync.set({listName: list}, function () {
+            displayBlackList()
+            console.log("added " + handle + " to " + listName)
         })
     })
 }
 
+
+function eraseFromList(listName, handle) {
+    console.log("erasing " + handle + " from " + listName)
+    chrome.storage.sync.get([listName], function(result) {
+        let list = String(Object.values(result)[0]).split(",")
+        list = list.filter(function (s) {
+            return !(s === handle);
+        })
+        chrome.storage.sync.set({listName: list}, function () {
+            displayBlackList()
+            console.log("erased " + handle + " from " + listName)
+        })
+    })
+}
+
+
+function displayBlackList() {
+    chrome.storage.sync.get(['blacklist'], function (result) {
+        let blacklist = String(result.blacklist).split(",")
+        blacklist = blacklist.filter(function (s) {
+            return !(s === "");
+        })
+        let container = document.getElementById("blacklist_container")
+        let newInnerHTML = "<table>"
+        for (let i = 0; i < blacklist.length; ++i) {
+            newInnerHTML += "<tr><td>" + blacklist[i] + "</td><td><button class='erase-button' id=" + blacklist[i] + ">X</button></td></tr>"
+        }
+        newInnerHTML += "</table>";
+        container.innerHTML = newInnerHTML
+        let buttons = container.getElementsByClassName('erase-button')
+        for (let i = 0; i < buttons.length; ++i) {
+            buttons[i].onclick = function () {
+                eraseFromList('blacklist', buttons[i].id)
+            }
+        }
+    })
+
+}
+
+
 drawLevel()
+displayBlackList()
 
 chrome.storage.onChanged.addListener(function(changes, namespace) {
     drawLevel()
@@ -44,6 +85,7 @@ for (let i = 0; i < buttons.length; ++i) {
         let id = Number(buttons[i].getAttribute('id'))
         chrome.storage.sync.set({'level': id}, function() {
             reloadCurrentTab()
+            setTimeout(() => {  window.close(); }, 250);
         });
     }
 }
@@ -52,8 +94,9 @@ for (let i = 0; i < buttons.length; ++i) {
 node = document.getElementById("blacklist_input")
 node.addEventListener("keyup", function(event) {
     if (event.key === "Enter") {
-        addToBlackList(node.value)
+        addToList('blacklist', node.value)
         node.value = ""
+        reloadCurrentTab()
     }
 });
 
