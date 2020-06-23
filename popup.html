@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <style>
         button {
@@ -10,16 +10,46 @@
     </style>
 </head>
 <body>
-<button id="-1" class = 'button'>gray</button>
-<button id="0" class = 'button'>green</button>
-<button id="1" class = 'button'>cyan</button>
-<button id="2" class = 'button'>black</button>
-<button id="3" class = 'button'>blue</button>
-<button id="4" class = 'button'>violet</button>
-<button id="5" class = 'button'>orange</button>
-<button id="6" class = 'button'>red</button>
-<button id="7" class = 'button'>legendary</button>
-<button id="8" class = 'button'>block all</button>
+<table>
+    <tr>
+        <td>
+            <button id="-1" class='button'>gray</button>
+            <button id="0" class='button'>green</button>
+            <button id="1" class='button'>cyan</button>
+            <button id="2" class='button'>black</button>
+            <button id="3" class='button'>blue</button>
+            <button id="4" class='button'>violet</button>
+            <button id="5" class='button'>orange</button>
+            <button id="6" class='button'>red</button>
+            <button id="7" class='button'>legendary</button>
+            <button id="8" class='button'>block all</button>
+        </td>
+        <td style=" display: flex; align-content:space-around;">
+            <table>
+                <tr>
+                    <td colspan="2">BLACKLIST</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="text" id="blacklist_input">
+                    </td>
+                </tr>
+                <tr>
+                    <td>kek</td>
+                    <td>
+                        <button>erasekek</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>lol</td>
+                    <td>
+                        <button>eraselol</button>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
 <script src="popup.js"></script>
 </body>
 </html>

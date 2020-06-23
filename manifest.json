@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "CodeForces Filter",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "content_scripts": [
     {
       "matches": ["https://codeforces.com/blog/*/*"],
@@ -17,7 +17,5 @@
   "permissions": [
     "storage"
   ],
-  "description": "Removes comments of low-rated users. Details: download; choose color in popup menu, comments by users of color < chosen_color will be deleted. If there is an answer by high-rated user to comment by low-rated it's not removed."
-
-
+  "description": "Removes comments of low-rated users. Choose color in popup menu, comments by users of color < chosen_color will be removed."
 }
