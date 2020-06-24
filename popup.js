@@ -1,5 +1,4 @@
 buttons = document.getElementsByClassName('button')
-
 colors = ['#808080', '#008d00', '#03afa0', 'gray', '#5e04ff', '#b800ab', '#ff8a00', '#fd090a', '#8B0000', 'gray']
 
 function drawLevel() {
@@ -17,44 +16,40 @@ function drawLevel() {
 }
 
 function reloadCurrentTab() {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         chrome.tabs.reload(tabs[0].id);
     });
 }
 
-function addToList(listName, handle) {
-    chrome.storage.sync.get([listName], function(result) {
-        let list = String(Object.values(result)[0]).split(",")
-        list.push(handle)
-        chrome.storage.sync.set({listName: list}, function () {
-            displayBlackList()
-            console.log("added " + handle + " to " + listName)
+function addToBlackList(handle) {
+    chrome.storage.sync.get(['blacklist'], function (result) {
+        if (String(result.blacklist).split(',').includes(handle))
+            return
+        let list = String(result.blacklist) + "," + handle
+        chrome.storage.sync.set({'blacklist': list}, function () {
         })
     })
 }
 
-
-function eraseFromList(listName, handle) {
-    console.log("erasing " + handle + " from " + listName)
-    chrome.storage.sync.get([listName], function(result) {
-        let list = String(Object.values(result)[0]).split(",")
+function eraseFromBlackList(handle) {
+    chrome.storage.sync.get(['blacklist'], function (result) {
+        let list = String(result.blacklist).split(",")
         list = list.filter(function (s) {
             return !(s === handle);
         })
-        chrome.storage.sync.set({listName: list}, function () {
-            displayBlackList()
-            console.log("erased " + handle + " from " + listName)
+        chrome.storage.sync.set({'blacklist': list}, function () {
         })
     })
 }
 
-
 function displayBlackList() {
     chrome.storage.sync.get(['blacklist'], function (result) {
-        let blacklist = String(result.blacklist).split(",")
+        console.log("displayBlackList result.blacklist = " + result.blacklist)
+        blacklist = String(result.blacklist).split(",")
         blacklist = blacklist.filter(function (s) {
             return !(s === "");
         })
+        blacklist.sort()
         let container = document.getElementById("blacklist_container")
         let newInnerHTML = "<table>"
         for (let i = 0; i < blacklist.length; ++i) {
@@ -65,38 +60,56 @@ function displayBlackList() {
         let buttons = container.getElementsByClassName('erase-button')
         for (let i = 0; i < buttons.length; ++i) {
             buttons[i].onclick = function () {
-                eraseFromList('blacklist', buttons[i].id)
+                eraseFromBlackList(buttons[i].id)
             }
         }
     })
-
 }
 
+function initStorage() {
+    chrome.storage.sync.get(['level'], function (result) {
+        if (result.level == null) {
+            chrome.storage.sync.set({level: "0"}, function () {
+            })
+        }
+    })
+    chrome.storage.sync.get(['blacklist'], function (result) {
+        if (result.blacklist == null) {
+            chrome.storage.sync.set({blacklist: ""}, function () {
+            })
+        }
+    })
+}
 
-drawLevel()
-displayBlackList()
-
-chrome.storage.onChanged.addListener(function(changes, namespace) {
-    drawLevel()
-});
-
-for (let i = 0; i < buttons.length; ++i) {
-    buttons[i].onclick = function () {
-        let id = Number(buttons[i].getAttribute('id'))
-        chrome.storage.sync.set({'level': id}, function() {
-            reloadCurrentTab()
-            setTimeout(() => {  window.close(); }, 250);
-        });
+function addOnClickColorButtons() {
+    for (let i = 0; i < buttons.length; ++i) {
+        buttons[i].onclick = function () {
+            let id = Number(buttons[i].getAttribute('id'))
+            chrome.storage.sync.set({'level': id}, function () {
+                setTimeout(() => {
+                    window.close();
+                }, 250);
+            });
+        }
     }
 }
 
+initStorage()
+drawLevel()
+displayBlackList()
+
+chrome.storage.onChanged.addListener(function (changes, namespace) {
+    drawLevel()
+    reloadCurrentTab()
+    displayBlackList()
+});
+addOnClickColorButtons()
 
 node = document.getElementById("blacklist_input")
-node.addEventListener("keyup", function(event) {
+node.addEventListener("keyup", function (event) {
     if (event.key === "Enter") {
-        addToList('blacklist', node.value)
+        addToBlackList(node.value)
         node.value = ""
-        reloadCurrentTab()
     }
 });
 
