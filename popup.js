@@ -22,6 +22,8 @@ function reloadCurrentTab() {
 }
 
 function addToBlackList(handle) {
+    if (handle.includes(' '))
+        return
     chrome.storage.sync.get(['blacklist'], function (result) {
         if (String(result.blacklist).split(',').includes(handle))
             return
@@ -44,20 +46,19 @@ function eraseFromBlackList(handle) {
 
 function displayBlackList() {
     chrome.storage.sync.get(['blacklist'], function (result) {
-        console.log("displayBlackList result.blacklist = " + result.blacklist)
         blacklist = String(result.blacklist).split(",")
         blacklist = blacklist.filter(function (s) {
             return !(s === "");
         })
         blacklist.sort()
         let container = document.getElementById("blacklist_container")
-        let newInnerHTML = "<table>"
+        let newInnerHTML = "<table class='table'>"
         for (let i = 0; i < blacklist.length; ++i) {
-            newInnerHTML += "<tr><td>" + blacklist[i] + "</td><td><button class='erase-button' id=" + blacklist[i] + ">X</button></td></tr>"
+            newInnerHTML += "<tr><td>" + blacklist[i] + "</td><td><span class=\"glyphicon glyphicon-remove\" id=" + blacklist[i] + "></span></td></tr>"
         }
         newInnerHTML += "</table>";
         container.innerHTML = newInnerHTML
-        let buttons = container.getElementsByClassName('erase-button')
+        let buttons = container.getElementsByClassName('glyphicon glyphicon-remove')
         for (let i = 0; i < buttons.length; ++i) {
             buttons[i].onclick = function () {
                 eraseFromBlackList(buttons[i].id)
@@ -112,5 +113,3 @@ node.addEventListener("keyup", function (event) {
         node.value = ""
     }
 });
-
-
